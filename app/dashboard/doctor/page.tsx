@@ -96,9 +96,6 @@ export default function DoctorDashboard() {
               </Button>
             </Link>
           </CardHeader>
-          <CardContent>
-            <RecentAppointments appointments={appointmentData || []} />
-          </CardContent>
         </Card>
       </div>
     </div>

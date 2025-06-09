@@ -1,0 +1,128 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Usuario {
+  id             Int       @id @default(autoincrement())
+  tipoUsuario    String
+  nombres        String
+  apellidos      String
+  dni            Int       @unique
+  direccion      String?
+  telefono       Int?
+  correo         String    @unique
+  contrasenia    String
+  ultimaConexion DateTime?
+  profesional    Profesional?
+  paciente       Paciente?
+  auditoria      RegistroAuditoria[]
+}
+
+model Profesional {
+  id           Int      @id @map("id_usuario")
+  usuario      Usuario  @relation(fields: [id], references: [id])
+  turnos       Turno[]
+  pacientes    Paciente[]
+}
+
+model Paciente {
+  id             Int       @id @map("id_usuario")
+  usuario        Usuario   @relation(fields: [id], references: [id])
+  estado         EstadoPaciente @default(ACTIVO)
+  fechaRegistro  DateTime  @default(now())
+  ultimaConexion DateTime?
+  profesional    Profesional @relation(fields: [profesionalId], references: [id])
+  profesionalId  Int
+  solicitudes    SolicitudCita[]
+  citas          Cita[]
+  resumenClinico String?
+}
+
+model Turno {
+  id            Int       @id @default(autoincrement())
+  profesional   Profesional @relation(fields: [profesionalId], references: [id])
+  profesionalId Int
+  fecha         DateTime
+  horaInicio    DateTime
+  horaFin       DateTime
+  estado        EstadoTurno @default(DISPONIBLE)
+  solicitud     SolicitudCita?
+  cita          Cita?
+}
+
+model SolicitudCita {
+  id             Int       @id @default(autoincrement())
+  paciente       Paciente  @relation(fields: [pacienteId], references: [id])
+  pacienteId     Int
+  turno          Turno     @relation(fields: [turnoId], references: [id])
+  turnoId        Int       @unique
+  fechaSolicitud DateTime  @default(now())
+  motivo         String?
+  estado         EstadoSolicitud @default(PENDIENTE)
+  motivoRechazo  String?
+}
+
+model Cita {
+  id            Int       @id @default(autoincrement())
+  turno         Turno     @relation(fields: [turnoId], references: [id])
+  turnoId       Int       @unique
+  paciente      Paciente  @relation(fields: [pacienteId], references: [id])
+  pacienteId    Int
+  estado        EstadoCita @default(PROXIMA)
+  tipoDeCita    TipoCita
+  observaciones String?
+  notas         NotaClinica[]
+}
+
+model NotaClinica {
+  id        Int     @id @default(autoincrement())
+  cita      Cita    @relation(fields: [citaId], references: [id])
+  citaId    Int
+  contenido String
+  fecha     DateTime @default(now())
+}
+
+model RegistroAuditoria {
+  id          Int       @id @default(autoincrement())
+  usuario     Usuario   @relation(fields: [usuarioId], references: [id])
+  usuarioId   Int
+  accion      String
+  descripcion String?
+  entidad     String
+  entidadId   Int?
+  fecha       DateTime  @default(now())
+}
+
+enum EstadoPaciente {
+  ACTIVO
+  INACTIVO
+}
+
+enum EstadoTurno {
+  DISPONIBLE
+  OCUPADO
+  CANCELADO
+}
+
+enum EstadoSolicitud {
+  PENDIENTE
+  ACEPTADA
+  RECHAZADA
+}
+
+enum EstadoCita {
+  PROXIMA
+  CANCELADA
+  COMPLETADA
+}
+
+enum TipoCita {
+  CONSULTA
+  SEGUIMIENTO
+  EVALUACION
+}
