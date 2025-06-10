@@ -9,14 +9,18 @@ export default function PatientLayout({ children }: { children: ReactNode }) {
     <SidebarProvider>
       <div className="flex min-h-screen flex-col">
         <PatientHeader />
+
         <div className="flex flex-1 bg-gray-50">
           <Sidebar className="w-60 border-r">
             <SidebarContent>
               <PatientNav />
             </SidebarContent>
           </Sidebar>
-          <main className="flex-1 p-6 max-w-4xl mx-auto w-full">
-            {children}
+
+          <main className="flex-1 overflow-auto bg-gray-50">
+            <div className="container mx-auto p-6 w-full">
+              {children}
+            </div>
           </main>
         </div>
       </div>
