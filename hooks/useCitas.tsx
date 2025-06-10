@@ -1,7 +1,11 @@
 // hooks/useCitas.ts
 import useSWR from "swr";
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json());
+const fetcher = (url: string) =>
+  fetch(url, { credentials: "include" }).then((r) => {
+    if (!r.ok) throw new Error("Error cargando citas");
+    return r.json();
+  });
 
 export interface Cita {
   id: number;
@@ -36,6 +40,8 @@ export interface NewCitaPayload {
 export interface UpdateCitaPayload {
   estado: "PROXIMA" | "CANCELADA" | "COMPLETADA";
   observaciones?: string;
+  turnoId?: number;
+  tipoDeCita?: "CONSULTA" | "SEGUIMIENTO" | "EVALUACION";
 }
 
 export default function useCitas() {
@@ -47,25 +53,39 @@ export default function useCitas() {
     error,
 
     createCita: async (payload: NewCitaPayload) => {
-      await fetch("/api/citas", {
+      const res = await fetch("/api/citas", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      await mutate();
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.message || "Error creando cita");
+      }
+
+      const nuevaCita: Cita = await res.json();
+      // Actualización optimista
+      mutate((prevCitas = []) => [...prevCitas, nuevaCita], false);
     },
 
     updateCita: async (id: number, payload: UpdateCitaPayload) => {
-      await fetch(`/api/citas/${id}`, {
+      const res = await fetch(`/api/citas/${id}`, {
         method: "PUT",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
+      if (!res.ok) throw new Error("Error actualizando cita");
       await mutate();
     },
 
     deleteCita: async (id: number) => {
-      await fetch(`/api/citas/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/citas/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Error eliminando cita");
       await mutate();
     },
   };

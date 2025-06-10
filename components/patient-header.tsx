@@ -1,68 +1,65 @@
+// components/patient-header.tsx
 "use client";
 
 import Link from "next/link";
-import { Bell, LogOut, User, HeartPulse } from "lucide-react";
-
+import { Bell, LogOut, User as UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
+  DropdownMenuTrigger,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import useAuth from "@/hooks/useAuth";      // default export
 
 export function PatientHeader() {
-  const patientName = "Paciente";
+  const { user, logout } = useAuth();
+  const name = user?.nombreUsuario || "Paciente";
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 items-center" style={{ paddingLeft: 260 }}>
-        {/* paddingLeft para separar el header del sidebar fijo de 250px + algo de margen */}
-        <div className="flex items-center gap-2 font-semibold mr-4">
-          <SidebarTrigger />
-          <Link href="/" className="flex items-center gap-2 text-gray-900">
-            <HeartPulse className="h-6 w-6 text-red-600" />
-            <span>{patientName}</span>
-          </Link>
-        </div>
+    <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur">
+      <div className="flex items-center justify-between h-14 px-6">
+        <Link href="/dashboard/patient" className="flex items-center gap-2 text-lg font-semibold">
+          <UserIcon className="h-6 w-6 text-gray-700" />
+          <span>Paciente – {name}</span>
+        </Link>
 
-        <div className="flex flex-1 items-center justify-end space-x-4">
-          <nav className="flex items-center space-x-2">
-            <Button variant="ghost" size="icon">
-              <Bell className="h-5 w-5 text-gray-700" />
-              <span className="sr-only">Notificaciones</span>
-            </Button>
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon">
+            <Bell className="h-5 w-5 text-gray-600" />
+            <span className="sr-only">Notificaciones</span>
+          </Button>
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                  <User className="h-5 w-5 text-gray-900" />
-                  <span className="sr-only">Menú de usuario</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{patientName}</p>
-                    <p className="text-xs leading-none text-muted-foreground">Paciente</p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Perfil</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <LogOut className="mr-2 h-4 w-4 text-red-600" />
-                  <span className="text-red-600">Cerrar sesión</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </nav>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="rounded-full">
+                <UserIcon className="h-5 w-5 text-gray-600" />
+                <span className="sr-only">Menú usuario</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" forceMount>
+              <DropdownMenuLabel>
+                <div className="flex flex-col">
+                  <span className="font-medium">{name}</span>
+                  <span className="text-xs text-muted-foreground">Paciente</span>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/patient/profile" className="flex items-center gap-2">
+                  <UserIcon className="h-4 w-4" />
+                  Perfil
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onSelect={logout} className="flex items-center gap-2 text-red-600">
+                <LogOut className="h-4 w-4" />
+                Cerrar sesión
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </header>

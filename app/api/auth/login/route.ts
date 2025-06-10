@@ -5,73 +5,58 @@ import jwt from "jsonwebtoken";
 import prisma from "@/lib/prisma";
 
 export async function POST(req: Request) {
-  const { email, password, userType } = await req.json();
+  const { email, password } = await req.json();
 
-  // 1) Buscar usuario incluyendo su registroPaciente
+  // 1) Buscar usuario
   const user = await prisma.usuario.findUnique({
     where: { correo: email },
     include: { registroPaciente: true },
   });
   if (!user) {
-    return NextResponse.json(
-      { message: "Usuario no encontrado" },
-      { status: 404 }
-    );
+    return NextResponse.json({ ok: false, message: "Usuario no encontrado" }, { status: 404 });
   }
 
   // 2) Validar contraseña
-  const isValid = await bcrypt.compare(password, user.contrasenia);
-  if (!isValid) {
-    return NextResponse.json(
-      { message: "Contraseña incorrecta" },
-      { status: 401 }
-    );
+  if (!(await bcrypt.compare(password, user.contrasenia))) {
+    return NextResponse.json({ ok: false, message: "Contraseña incorrecta" }, { status: 401 });
   }
 
-  // 3) (Opcional) verificar tipo de usuario
-  if (user.tipoUsuario !== userType) {
-    return NextResponse.json(
-      { message: "Tipo de usuario no coincide" },
-      { status: 403 }
-    );
-  }
-
-  // 4) Actualizar última conexión
+  // 3) Actualizar última conexión
   await prisma.usuario.update({
     where: { id: user.id },
     data: { ultimaConexion: new Date() },
   });
 
-  // 5) Generar JWT
+  // 4) Generar JWT con el tipo real del usuario
   const token = jwt.sign(
-    { userId: user.id, tipo: userType },
+    { userId: user.id, tipo: user.tipoUsuario },
     process.env.JWT_SECRET!,
     { expiresIn: "2h" }
   );
 
-  // 6) Devolver cookie + datos del usuario (incluyendo nombres/apellidos)
-  const res = NextResponse.json(
-    {
-      ok: true,
-      user: {
-        id: user.id,
-        tipoUsuario: user.tipoUsuario,
-        correo: user.correo,
-        registroPaciente: {
-          nombres: user.registroPaciente?.nombres,
-          apellidos: user.registroPaciente?.apellidos,
-        },
-        ultimaConexion: new Date().toISOString(), // ya actualizada arriba
-      },
+  // 5) Devolver cookie + payload
+  const payload = {
+    ok: true,
+    user: {
+      id: user.id,
+      nombreUsuario: user.nombreUsuario,
+      correo: user.correo,
+      tipoUsuario: user.tipoUsuario,
+      registroPaciente: user.registroPaciente
+        ? {
+            nombres: user.registroPaciente.nombres,
+            apellidos: user.registroPaciente.apellidos,
+          }
+        : null,
+      ultimaConexion: new Date().toISOString(),
     },
-    { status: 200 }
-  );
+  };
 
+  const res = NextResponse.json(payload, { status: 200 });
   res.cookies.set("token", token, {
     httpOnly: true,
     path: "/",
-    maxAge: 60 * 60 * 2, // 2 horas
+    maxAge: 60 * 60 * 2,
   });
-
   return res;
 }

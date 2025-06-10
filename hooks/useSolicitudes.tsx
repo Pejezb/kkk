@@ -1,7 +1,11 @@
 // hooks/useSolicitudes.ts
 import useSWR from "swr";
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json());
+const fetcher = (url: string) =>
+  fetch(url, { credentials: "include" }).then((r) => {
+    if (!r.ok) throw new Error("Error cargando solicitudes");
+    return r.json();
+  });
 
 export interface Solicitud {
   id: number;
@@ -26,7 +30,6 @@ export interface Solicitud {
 }
 
 export interface NewSolicitudPayload {
-  pacienteId: number;
   turnoId: number;
   motivo?: string;
 }
@@ -47,6 +50,7 @@ export default function useSolicitudes() {
     createSolicitud: async (payload: NewSolicitudPayload) => {
       await fetch("/api/solicitudes", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
@@ -56,6 +60,7 @@ export default function useSolicitudes() {
     updateSolicitud: async (id: number, payload: UpdateSolicitudPayload) => {
       await fetch(`/api/solicitudes/${id}`, {
         method: "PUT",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
@@ -65,6 +70,7 @@ export default function useSolicitudes() {
     deleteSolicitud: async (id: number) => {
       await fetch(`/api/solicitudes/${id}`, {
         method: "DELETE",
+        credentials: "include",
       });
       await mutate();
     },
