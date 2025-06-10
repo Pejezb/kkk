@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
@@ -9,14 +10,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-import PatientFilters, { PatientFilter } from "@/components/patients/PatientFilters";
-import PatientTable from "@/components/patients/PatientTable";
-import PatientForm from "@/components/patients/PatientForm";
 import usePatients, {
   UsuarioConPaciente,
   NuevoPacientePayload,
   EditarPacientePayload,
 } from "@/hooks/usePatients";
+import PatientFilters, { PatientFilter } from "@/components/patients/PatientFilters";
+import PatientTable from "@/components/patients/PatientTable";
+import PatientForm from "@/components/patients/PatientForm";
 
 export default function PatientsPage() {
   const { patients, loading, addPatient, updatePatient, deletePatient } = usePatients();
@@ -51,9 +52,11 @@ export default function PatientsPage() {
 
   return (
     <div className="space-y-6 p-6">
-      {/* Header y botón Nuevo */}
-      <div className="flex items-center justify-between">
+      {/* Header y fecha de creación opcional */}
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <h1 className="text-2xl font-bold">Pacientes</h1>
+        {/* Si quieres un filtro por fecha de registro igual que citas */}
+        {/* <Input type="date" /> */}
         <Button onClick={openNew}>Nuevo Paciente</Button>
       </div>
 

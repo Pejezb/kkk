@@ -1,103 +1,55 @@
-'use client'
+// app/dashboard/doctor/page.tsx
+"use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import RecentAppointments from "@/components/recent-appointments";
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
-import { Users, Calendar, FileText } from "lucide-react"
-import useStorage from "@/hooks/useLocalStorage"
-import RecentPatients from "@/components/RecentPatients";
+import React from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 
-export default function DoctorDashboard() {
+import DoctorStats from "@/components/dashboard/DoctorStats";
+import RecentPatients from "@/components/dashboard/RecentPatients";
+import RecentAppointments from "@/components/dashboard/RecentAppointments";
 
-  const { data: appointmentData, isLoading: appointmentLoad } = useStorage("appointments", []);
-
-  // Temporal fallback para probar pacientes:
-  // const { data: patientsData, isLoading: patientsLoad } = useStorage("patients", []);
-  const patientsData = [
-    { id: '1', name: 'Juan Perez' },
-    { id: '2', name: 'Maria Gomez' },
-  ];
-  const patientsLoad = false;
-
-  console.log("Pacientes cargados:", patientsData, "Loading:", patientsLoad);
-
+export default function DoctorDashboardPage() {
   return (
-    <div className="flex-1 space-y-4">
-      <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">Panel de Administración</h2>
-      </div>
+    <div className="space-y-6">
+      {/* Estadísticas rápidas */}
+      <DoctorStats />
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total de Pacientes</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {patientsLoad ? "0" : patientsData.length}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Citas Programadas</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {appointmentLoad ? "0" : appointmentData.length}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Historias Clinicas</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {patientsLoad ? "0" : patientsData.length}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+      {/* Sección de listados */}
+      <div className="grid gap-4 md:grid-cols-7">
+        {/* Recientes Pacientes */}
         <Card className="col-span-4">
-          <CardHeader className="flex flex-row items-center justify-between">
+          <CardHeader className="flex justify-between">
             <div>
               <CardTitle>Pacientes registrados</CardTitle>
-              <CardDescription>Revisar historia clinica de los pacientes </CardDescription>
+              <CardDescription>Revisa las historias clínicas</CardDescription>
             </div>
             <Link href="/dashboard/doctor/patients">
-              <Button variant="outline" size="lg" className="w-58">
-                Añadir paciente
-              </Button>
+              <Button variant="outline">Ver Todos</Button>
             </Link>
           </CardHeader>
-          <CardContent className="pl-2">
-            <RecentPatients patients={patientsData || []} />
+          <CardContent>
+            <RecentPatients />
           </CardContent>
         </Card>
 
+        {/* Próximas Citas */}
         <Card className="col-span-3">
-          <CardHeader className="flex flex-row items-center justify-between">
+          <CardHeader className="flex justify-between">
             <div>
-              <CardTitle>Próximas Citas</CardTitle>
+              <CardTitle>Próximas citas</CardTitle>
               <CardDescription>Citas programadas</CardDescription>
             </div>
             <Link href="/dashboard/doctor/appointments">
-              <Button variant="outline" size="sm" className="w-58">
-                Ver Todas
-              </Button>
+              <Button variant="outline">Ver Todas</Button>
             </Link>
           </CardHeader>
+          <CardContent>
+            <RecentAppointments />
+          </CardContent>
         </Card>
       </div>
     </div>
-  )
+  );
 }

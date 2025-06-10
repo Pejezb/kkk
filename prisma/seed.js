@@ -1,4 +1,4 @@
-// prisma/seed.js
+// prisma/seed.js 
 const bcrypt = require('bcryptjs');
 const { PrismaClient, UsuarioTipo } = require('@prisma/client');
 const prisma = new PrismaClient();
@@ -36,3 +36,4 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
+

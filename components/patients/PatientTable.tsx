@@ -1,11 +1,18 @@
-// components/patients/PatientTable.tsx
 "use client";
 
 import React from "react";
 import { format } from "date-fns";
-import PatientActions from "./PatientActions";
 import type { UsuarioConPaciente } from "@/hooks/usePatients";
 import type { PatientFilter } from "./PatientFilters";
+import PatientActions from "./PatientActions";
+import {
+  Table,
+  TableHeader,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+} from "@/components/ui/table";
 
 interface PatientTableProps {
   patients: UsuarioConPaciente[];
@@ -28,44 +35,42 @@ export default function PatientTable({
   });
 
   return (
-    <table className="w-full border-collapse">
-      <thead>
-        <tr>
-          <th className="border px-2 py-1 text-left">Nombre</th>
-          <th className="border px-2 py-1 text-left">Apellido</th>
-          <th className="border px-2 py-1 text-left">Fecha Registro</th>
-          <th className="border px-2 py-1 text-left">Última Conexión</th>
-          <th className="border px-2 py-1 text-left">Teléfono</th>
-          <th className="border px-2 py-1 text-left">Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Nombre</TableHead>
+          <TableHead>Apellido</TableHead>
+          <TableHead>Fecha Registro</TableHead>
+          <TableHead>Última Conexión</TableHead>
+          <TableHead>Teléfono</TableHead>
+          <TableHead className="text-right">Acciones</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
         {filtered.map((p) => (
-          <tr key={p.id}>
-            <td className="border px-2 py-1">{p.registroPaciente.nombres}</td>
-            <td className="border px-2 py-1">{p.registroPaciente.apellidos}</td>
-            <td className="border px-2 py-1">
+          <TableRow key={p.id}>
+            <TableCell>{p.registroPaciente.nombres}</TableCell>
+            <TableCell>{p.registroPaciente.apellidos}</TableCell>
+            <TableCell>
               {format(new Date(p.registroPaciente.fechaCreacion), "dd/MM/yyyy")}
-            </td>
-            <td className="border px-2 py-1">
+            </TableCell>
+            <TableCell>
               {p.ultimaConexion
                 ? format(new Date(p.ultimaConexion), "dd/MM/yyyy")
                 : "–"}
-            </td>
-            <td className="border px-2 py-1">
-              {p.registroPaciente.telefono ?? "–"}
-            </td>
-            <td className="border px-2 py-1">
+            </TableCell>
+            <TableCell>{p.registroPaciente.telefono ?? "–"}</TableCell>
+            <TableCell className="text-right">
               <PatientActions
                 id={p.id}
                 estado={p.registroPaciente.estado}
                 onEdit={onEdit}
                 onDelete={onDelete}
               />
-            </td>
-          </tr>
+            </TableCell>
+          </TableRow>
         ))}
-      </tbody>
-    </table>
+      </TableBody>
+    </Table>
   );
 }

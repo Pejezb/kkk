@@ -86,3 +86,14 @@
   transform: translateY(-5px);
   box-shadow: 0 10px 25px -5px hsl(var(--primary) / 0.1);
 }
+
+/* Aplica solo a los inputs de fecha dentro de tu app */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  /* invierte los colores y sube el brillo para que quede blanco */
+  filter: invert(1) brightness(2);
+}
+
+/* Firefox */
+input[type="date"]::-moz-calendar-picker-indicator {
+  filter: invert(1) brightness(2);
+}
