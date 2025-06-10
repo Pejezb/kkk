@@ -1,95 +1,92 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { PlusCircle } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { ExportButton } from "@/components/ExportButton"
-import { PatientTable } from "@/components/PatientTable"
-import { PatientForm } from "@/components/PatientForm"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
-export interface Patient {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  status: string;
-  condition: string;
-}
+import PatientFilters, { PatientFilter } from "@/components/patients/PatientFilters";
+import PatientTable from "@/components/patients/PatientTable";
+import PatientForm from "@/components/patients/PatientForm";
+import usePatients, {
+  UsuarioConPaciente,
+  NuevoPacientePayload,
+  EditarPacientePayload,
+} from "@/hooks/usePatients";
 
 export default function PatientsPage() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [open, setOpen] = useState(false)
-  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null)
+  const { patients, loading, addPatient, updatePatient, deletePatient } = usePatients();
 
-  const handleOpenAdd = () => {
-    setSelectedPatient(null)
-    setOpen(true)
-  }
+  const [filter, setFilter] = useState<PatientFilter>({ search: "", status: "all" });
+  const [editing, setEditing] = useState<UsuarioConPaciente | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const openNew = () => {
+    setEditing(null);
+    setModalOpen(true);
+  };
+
+  const handleSave = async (data: NuevoPacientePayload | EditarPacientePayload) => {
+    if (editing) {
+      await updatePatient(editing.id, data as EditarPacientePayload);
+    } else {
+      await addPatient(data as NuevoPacientePayload);
+    }
+    setModalOpen(false);
+  };
+
+  const handleEdit = (id: number) => {
+    const selected = patients.find((p) => p.id === id) || null;
+    setEditing(selected);
+    setModalOpen(true);
+  };
+
+  const handleDelete = async (id: number) => {
+    await deletePatient(id);
+  };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6 p-6">
+      {/* Header y botón Nuevo */}
       <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold tracking-tight">Pacientes</h2>
-        <div className="flex gap-2">
-          <ExportButton
-            data={[]} // datos vendrán desde la BD
-            headers={["name", "email", "phone", "status", "condition"]}
-            filename="pacientes.csv"
-          />
-          <Button onClick={handleOpenAdd}>
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Nuevo Paciente
-          </Button>
-        </div>
+        <h1 className="text-2xl font-bold">Pacientes</h1>
+        <Button onClick={openNew}>Nuevo Paciente</Button>
       </div>
 
-      <div className="flex gap-4">
-        <Input
-          placeholder="Buscar paciente..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+      {/* Filtros */}
+      <PatientFilters filter={filter} onChange={setFilter} />
+
+      {/* Tabla o loader */}
+      {loading ? (
+        <p>Cargando pacientes…</p>
+      ) : (
+        <PatientTable
+          patients={patients}
+          filter={filter}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
         />
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Filtrar por estado" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos</SelectItem>
-            <SelectItem value="Activo">Activo</SelectItem>
-            <SelectItem value="Inactivo">Inactivo</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      )}
 
-      <PatientTable
-        searchTerm={searchTerm}
-        statusFilter={statusFilter}
-        onEdit={(patient) => {
-          setSelectedPatient(patient)
-          setOpen(true)
-        }}
-      />
-
-      <Dialog open={open} onOpenChange={setOpen}>
+      {/* Modal de formulario */}
+      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {selectedPatient ? "Editar Paciente" : "Nuevo Paciente"}
+              {editing ? "Editar Paciente" : "Nuevo Paciente"}
             </DialogTitle>
           </DialogHeader>
           <PatientForm
-            patient={selectedPatient}
-            onClose={() => {
-              setOpen(false)
-              setSelectedPatient(null)
-            }}
+            patient={editing}
+            onSave={handleSave}
+            onCancel={() => setModalOpen(false)}
           />
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }

@@ -13,14 +13,23 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+
+    // ✨ Punto clave: define la raíz de tu proyecto
+    "baseUrl": ".",
+
+    // ✨ Mapea los alias a las carpetas correspondientes
+    "paths": {
+      "@/lib/*": ["lib/*"],
+      "@/components/*": ["components/*"],
+      "@/utils/*": ["utils/*"],
+      "@/*": ["./*"]
+    },
+
     "plugins": [
       {
         "name": "next"
       }
-    ],
-    "paths": {
-      "@/*": ["./*"]
-    }
+    ]
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
