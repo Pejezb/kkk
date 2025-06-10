@@ -8,7 +8,7 @@ async function main() {
   const password = 'doctor123';
   const tipo     = UsuarioTipo.doctor;
 
-  const exists = await prisma.usuario.findUnique({ where: { correo: email } });
+  const exists = await prisma.usuario.findUnique({ where: { correo: email } }); 
   if (exists) {
     console.log('🟡 Doctor ya existe, saltando seed.');
     return;
