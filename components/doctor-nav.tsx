@@ -1,8 +1,9 @@
+// components/doctor-nav.tsx
 "use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Calendar, Home, Users, MessageCircle } from "lucide-react";
+import { Calendar, Home, Users, MessageCircle, Inbox } from "lucide-react";
 import {
   SidebarMenu,
   SidebarMenuItem,
@@ -36,6 +37,11 @@ export function DoctorNav() {
       href: "/dashboard/doctor/foro",
       icon: MessageCircle,
     },
+    {
+      title: "Solicitudes",
+      href: "/dashboard/doctor/solicitudes",
+      icon: Inbox,
+    },
   ];
 
   return (
@@ -51,7 +57,7 @@ export function DoctorNav() {
                   isActive={pathname === item.href}
                   tooltip={item.title}
                 >
-                  <Link href={item.href}>
+                  <Link href={item.href} className="flex items-center gap-2">
                     <item.icon className="h-4 w-4" />
                     <span>{item.title}</span>
                   </Link>

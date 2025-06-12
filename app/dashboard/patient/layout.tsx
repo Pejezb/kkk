@@ -7,7 +7,7 @@ import { PatientHeader } from "@/components/patient-header";
 export default function PatientLayout({ children }: { children: ReactNode }) {
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen flex-col">
+      <div className="flex min-h-screen flex-col w-full">
         <PatientHeader />
 
         <div className="flex flex-1 bg-gray-50">

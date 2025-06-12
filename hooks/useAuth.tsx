@@ -2,7 +2,6 @@
 "use client";
 
 import useSWR from "swr";
-import Router from "next/router";
 
 export interface User {
   id: number;
@@ -36,12 +35,18 @@ export default function useAuth() {
   const user = data?.user || null;
 
   const logout = async () => {
-    await fetch("/api/auth/logout", {
-      method: "POST",
-      credentials: "include",
-    });
-    mutate(undefined, { revalidate: false });
-    Router.push("/login");
+    try {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (e) {
+      console.error("Logout failed:", e);
+    } finally {
+      mutate(undefined, { revalidate: false });
+      // Redirigir a la homepage usando la API del navegador
+      window.location.href = "/";
+    }
   };
 
   return { user, loading, error, logout };
